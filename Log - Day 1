@@ -1,0 +1,16 @@
+RCIP Job Assistant – Day 1 Setup
+
+- Initialized local Git repository for RCIP job assistant project
+- Created initial Python environment using virtualenv (venv)
+- Resolved Windows PowerShell execution policy issues for script activation
+- Installed core Python dependencies: requests, beautifulsoup4, pandas
+- Built initial job collector script to fetch webpage data using Python requests
+- Created first Git commit with project structure (.gitignore, collector.py)
+- Configured GitHub remote repository and resolved branch synchronization conflicts
+- Successfully connected local repository to GitHub and pushed initial codebase
+
+Key Learnings:
+- Git remote vs local repo synchronization issues
+- Virtual environment setup in Windows PowerShell
+- Basic web request handling in Python
+- Git merge and push workflow in real-world scenarios
