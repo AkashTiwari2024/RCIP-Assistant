@@ -1,13 +1,14 @@
-RCIP Job Assistant – Day 1 Setup
+Day 1 — Project Setup & Initial Web Scraper
 
-- Initialized local Git repository for RCIP job assistant project
-- Created initial Python environment using virtualenv (venv)
-- Resolved Windows PowerShell execution policy issues for script activation
-- Installed core Python dependencies: requests, beautifulsoup4, pandas
-- Built initial job collector script to fetch webpage data using Python requests
-- Created first Git commit with project structure (.gitignore, collector.py)
-- Configured GitHub remote repository and resolved branch synchronization conflicts
-- Successfully connected local repository to GitHub and pushed initial codebase
+-Set up local development environment for the RCIP Job Assistant project using Python virtual environment (venv)
+-Configured Git repository and connected project to GitHub for version control
+-Installed core libraries for web scraping and data handling: requests, beautifulsoup4, pandas
+-Built initial Python script to connect to Job Bank Canada using HTTP requests
+-Verified successful connection to target website using HTTP status code 200
+-Learned how to inspect and identify relevant HTML elements using browser developer tools
+
+Outcome:
+Established working development environment and confirmed ability to fetch live job data from a real website.
 
 Key Learnings:
 - Git remote vs local repo synchronization issues

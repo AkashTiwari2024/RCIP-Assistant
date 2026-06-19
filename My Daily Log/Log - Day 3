@@ -1,0 +1,15 @@
+Day 3 — Database Integration & Search Engine Layer
+
+- Migrated project from CSV-based storage to a structured SQLite relational database (jobs.db)
+- Designed database schema to store job postings with fields for title, company, location, URL, and description
+- Integrated scraper with database layer to store job postings directly into SQLite
+- Implemented SQL-based search functionality using multi-field filtering (title, company, location)
+- Added duplicate prevention using unique job identifiers and INSERT OR IGNORE constraints
+- Resolved real-world development issues including:
+    -Virtual environment configuration issues (Windows PowerShell)
+    - Package dependency conflicts
+    - SQLite schema mismatch and datatype errors
+    - Git synchronization issues between local and remote repository
+
+Outcome:
+Upgraded system from flat-file data storage to a queryable database-backed job search engine.
