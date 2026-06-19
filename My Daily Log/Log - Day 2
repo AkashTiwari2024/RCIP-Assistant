@@ -1,15 +1,15 @@
 Day 2 — Web Scraping & Data Extraction Pipeline
 
-** Built functional web scraper using BeautifulSoup to parse job listings from HTML
-** Identified key page structure elements for:
-        ** Job titles
-        ** Company names
-        ** Job locations
-** Extracted structured job data from unstructured HTML content
-** Stored scraped data in Python dictionaries and organized multiple records into lists
-** Cleaned raw text data to remove formatting inconsistencies and improve readability
-** Converted extracted dataset into structured format using Pandas
-** Exported job data into CSV file (jobs.csv) for persistence and offline access
+- Built functional web scraper using BeautifulSoup to parse job listings from HTML
+- Identified key page structure elements for:
+       - Job titles
+       - Company names
+       - Job locations
+- Extracted structured job data from unstructured HTML content
+- Stored scraped data in Python dictionaries and organized multiple records into lists
+- Cleaned raw text data to remove formatting inconsistencies and improve readability
+- Converted extracted dataset into structured format using Pandas
+- Exported job data into CSV file (jobs.csv) for persistence and offline access
 
 Outcome:
 Created a working ETL-style pipeline (Extract → Transform → Load) for real job data.
