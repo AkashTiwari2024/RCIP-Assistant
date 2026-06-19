@@ -1,135 +1,15 @@
-RCIP Job Assistant – Day 2 Progress
-Project: RCIP Job Assistant – Web Scraping MVP
-Activities Completed Today
-
-
-Connected Python script to the Job Bank Canada website using the requests library.
-
-
-Successfully fetched live webpage data and confirmed connection using HTTP status code 200.
-
-
-Learned how to inspect webpage HTML structure using browser developer tools (“Inspect Element”).
-
-
-Identified the HTML tags and classes containing:
-
-
-job titles
-
-
-company names
-
-
-locations
-
-
-
-
-Used BeautifulSoup to extract structured job data from the webpage.
-
-
-Built a Python list of dictionaries to organize job information in a machine-readable format.
-
-
-Cleaned extracted text data to improve readability and remove unnecessary formatting.
-
-
-Added pandas support to convert extracted job data into a structured table.
-
-
-Exported the results into a CSV dataset file (jobs.csv).
-
-
-
-Example Data Extracted
-
-
-Job Title
-
-
-Company Name
-
-
-Location
-
-
-Example:
-IT Support Technician | Roca Networks Inc. | Markham (ON)
-
-What I Learned
-
-
-How websites store information using HTML tags and classes.
-
-
-How web scraping works using:
-
-
-requests
-
-
-BeautifulSoup
-
-
-
-
-How to inspect webpage elements and identify repeating data structures.
-
-
-How to store extracted data using Python dictionaries and lists.
-
-
-How to generate CSV datasets using pandas.
-
-
-Basic understanding of how data pipelines work:
-
-
-Extract → Transform → Load (ETL)
-
-
-
-
-
-Outcome / Progress
-
-
-Successfully built the first working version of a job scraping pipeline.
-
-
-Generated a structured dataset of real job postings from Job Bank Canada.
-
-
-Established the foundation for future features such as:
-
-
-AI job ranking
-
-
-resume matching
-
-
-automated notifications
-
-
-RCIP job filtering
-
-
-
-
-
-Next Steps
-
-
-Extract direct job posting links
-
-
-Improve data cleaning and formatting
-
-
-Add filters for RCIP-relevant locations and industries
-
-
-Begin building AI-based job matching against resume/profile
-
+Day 2 — Web Scraping & Data Extraction Pipeline
+
+** Built functional web scraper using BeautifulSoup to parse job listings from HTML
+** Identified key page structure elements for:
+        ** Job titles
+        ** Company names
+        ** Job locations
+** Extracted structured job data from unstructured HTML content
+** Stored scraped data in Python dictionaries and organized multiple records into lists
+** Cleaned raw text data to remove formatting inconsistencies and improve readability
+** Converted extracted dataset into structured format using Pandas
+** Exported job data into CSV file (jobs.csv) for persistence and offline access
+
+Outcome:
+Created a working ETL-style pipeline (Extract → Transform → Load) for real job data.
