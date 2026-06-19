@@ -1,11 +1,11 @@
 Day 1 — Project Setup & Initial Web Scraper
 
-- Set up local development environment for the RCIP Job Assistant project using Python virtual environment (venv)
-- Configured Git repository and connected project to GitHub for version control
-- Installed core libraries for web scraping and data handling: requests, beautifulsoup4, pandas
-- Built initial Python script to connect to Job Bank Canada using HTTP requests
-- Verified successful connection to target website using HTTP status code 200
-- Learned how to inspect and identify relevant HTML elements using browser developer tools
+-Set up local development environment for the RCIP Job Assistant project using Python virtual environment (venv)
+-Configured Git repository and connected project to GitHub for version control
+-Installed core libraries for web scraping and data handling: requests, beautifulsoup4, pandas
+-Built initial Python script to connect to Job Bank Canada using HTTP requests
+-Verified successful connection to target website using HTTP status code 200
+-Learned how to inspect and identify relevant HTML elements using browser developer tools
 
 Outcome:
 Established working development environment and confirmed ability to fetch live job data from a real website.
