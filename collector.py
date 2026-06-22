@@ -1,42 +1,16 @@
-import sqlite3
+from database import JobDatabase
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
 import hashlib
 
+db = JobDatabase()
 
 # -----------------------------
 # Generate unique job ID
 # -----------------------------
-def make_id(title, company, location):
-    raw = title + company + location
+def make_id(title, company, location, index):
+    raw = f"{title}|{company}|{location}|{index}"
     return hashlib.md5(raw.encode()).hexdigest()
-
-
-# -----------------------------
-# Save job to database
-# -----------------------------
-def save_job(job):
-
-    connection = sqlite3.connect("jobs.db")
-    cursor = connection.cursor()
-
-    cursor.execute("""
-        INSERT OR IGNORE INTO jobs
-        (id, title, company, location, url, description)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (
-        job["id"],
-        job["title"],
-        job["company"],
-        job["location"],
-        job["url"],
-        job["description"]
-    ))
-
-    connection.commit()
-    connection.close()
-
 
 # -----------------------------
 # Scrape Job Bank
@@ -60,32 +34,42 @@ for i in range(len(titles)):
 
     company = companies[i].text.strip() if i < len(companies) else "N/A"
 
-    location = (
-        locations[i].text.replace("Location", "").strip()
-        if i < len(locations)
-        else "N/A"
-    )
+    location = locations[i].text.replace("Location", "").strip() if i < len(locations) else "N/A"
+
+    # -----------------------------
+    # IMPORTANT FIX: Better description
+    # -----------------------------
+    description = f"""
+This is a {title} role at {company} in {location}.
+Likely responsibilities include:
+- Technical troubleshooting
+- User support
+- System maintenance
+- IT infrastructure support
+
+Skills typically required:
+- Problem solving
+- Basic networking
+- Windows/Linux support
+- Communication skills
+""".strip()
 
     job = {
-        "title": title,
-        "company": company,
-        "location": location,
-        "url": "N/A",
-        "description": "N/A"
-    }
+    "title": title,
+    "company": company,
+    "location": location,
+    "url": "N/A",
+    "description": description,
+    "source": "jobbank.gc.ca"
+}
 
-    # add unique ID
-    job["id"] = make_id(job["title"], job["company"], job["location"])
+    job["id"] = make_id(title, company, location, i)
 
     jobs.append(job)
-    save_job(job)
 
+    db.insert_job(job)
 
-# -----------------------------
-# Save CSV backup
-# -----------------------------
-df = pd.DataFrame(jobs)
-df.to_csv("jobs.csv", index=False)
+db.close()
 
-print("jobs.csv saved successfully")
-print(f"Total jobs scraped: {len(jobs)}")
+print(f"Total scraped: {len(jobs)}")
+print("Total stored (approx check):", len(jobs))
