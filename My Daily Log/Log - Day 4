@@ -1,0 +1,52 @@
+# 🤖 AI Job Assistant (RCIP Project)
+
+---
+
+## 🚀 Overview
+
+The **AI Job Assistant** is a Python-based system that automatically:
+
+- Scrapes job postings
+- Stores them in a structured SQLite database
+- Uses AI (OpenAI GPT) to analyze and rank job matches against a resume
+- Produces a scored job recommendation system
+
+This project simulates a real-world **AI-powered recruitment pipeline**.
+
+---
+
+## 🧠 Key Features
+
+### 📡 Job Scraper
+- Scrapes job listings from Job Bank (Canada)
+- Extracts:
+  - Job title
+  - Company
+  - Location
+  - Description (enhanced when needed)
+- Generates unique job IDs using hashing
+
+---
+
+### 🗄️ Database System (SQLite)
+- Migrated from CSV → relational database
+- Structured schema includes:
+  - Job metadata (title, company, location)
+  - AI results (score, strengths, gaps)
+  - Processing state (`new`, `analyzed`)
+- Prevents duplicates using `INSERT OR IGNORE`
+
+---
+
+### 🤖 AI Ranking Engine
+- Uses OpenAI GPT model
+- Compares:
+  - Resume vs Job description
+- Outputs structured JSON:
+  ```json
+  {
+    "score": 0-100,
+    "strengths": [],
+    "gaps": [],
+    "recommendation": "apply | maybe | skip"
+  }
