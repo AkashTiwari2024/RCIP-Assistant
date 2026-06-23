@@ -9,28 +9,44 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-def rank_job(resume_text, job_description):
+def analyze_job(resume_text, job_description):
 
     prompt = f"""
-You are a professional ATS (Applicant Tracking System).
+You are an ATS resume analysis engine.
 
-You evaluate job-resume matches.
+Your job is NOT to give a final score.
 
-IMPORTANT SCORING RULES:
-- 0–30 = poor match (no relevant skills)
-- 31–60 = partial match (some overlap)
-- 61–85 = strong match (good fit)
-- 86–100 = excellent match (direct fit)
+Your job is to extract matching evidence between a resume and a job posting.
 
-You MUST spread scores across this range.
+Return ONLY valid JSON.
 
-Return ONLY valid JSON:
+Format:
 
 {{
-  "score": 0-100,
+  "required_skills": {{
+    "job_skills": [],
+    "matched": [],
+    "missing": []
+  }},
+
+  "experience": {{
+    "required": "",
+    "candidate": "",
+    "match": ""
+  }},
+
+  "responsibilities": {{
+    "matched": [],
+    "missing": []
+  }},
+
+  "education": {{
+    "matched": [],
+    "missing": []
+  }},
+
   "strengths": [],
-  "gaps": [],
-  "recommendation": "apply | maybe | skip"
+  "gaps": []
 }}
 
 RESUME:
@@ -48,4 +64,9 @@ JOB:
         temperature=0
     )
 
-    return response.choices[0].message.content
+    content = response.choices[0].message.content
+
+    if not content:
+        raise ValueError("Empty response from OpenAI")
+
+    return content

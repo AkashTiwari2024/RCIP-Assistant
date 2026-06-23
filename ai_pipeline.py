@@ -1,6 +1,7 @@
 import json
 from database import JobDatabase
-from ai_ranker import rank_job
+from ai_ranker import analyze_job
+from scoring import calculate_total_score
 
 db = JobDatabase()
 
@@ -53,26 +54,72 @@ Then evaluate match against resume.
 """
 
     try:
-        result = rank_job(resume, job_text)
-
-        data = json.loads(result)
-
-        print("Analyzed:", title, "Score:", data["score"])
-
-        db.update_job_ai(
-            job_id,
-            data["score"],
-            ",".join(data["strengths"]),
-            ",".join(data["gaps"]),
-            data["recommendation"]
+        result = analyze_job(
+            resume,
+            job_text
         )
 
+        try:
+            analysis = json.loads(result)
+        except Exception as e:
+            print("\n❌ RAW AI OUTPUT:")
+            print(result)
+            print("\n❌ PARSE ERROR:", e)
+            continue
+
+        print("\nMatched Skills:")
+        print(", ".join(
+            analysis["required_skills"]["matched"]
+        ))
+
+        print("\nMissing Skills:")
+        print(", ".join(
+            analysis["required_skills"]["missing"]
+        ))
+
+        print("\nGaps:")
+        for gap in analysis["gaps"]:
+            print("-", gap)
+
+        score_data = calculate_total_score(analysis)
+
+        score = score_data["score"]
+
+        strengths = analysis.get("strengths", [])
+
+        gaps = analysis.get("gaps", [])
+
+        if score >= 70:
+            recommendation = "apply"
+
+        elif score >= 45:
+            recommendation = "maybe"
+
+        else:
+            recommendation = "skip"
+
+        print("\n" + "=" * 50)
+        print(f"Job: {job['title']}")
+        print(f"Company: {job['company']}")
+        print(f"Score: {score}/100")
+        print(f"Recommendation: {recommendation}")
+        print("=" * 50)
+
     except Exception as e:
-        print("Error processing job:", title)
-        print("Error:", e)
+        print(f"Error analyzing job {job_id}: {e}")
+        continue
 
 # -----------------------------
 # Cleanup
 # -----------------------------
+
+response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {"role": "user", "content": prompt}
+    ],
+    temperature=0,
+    response_format={"type": "json_object"}  # 🔥 ADD THIS
+)
 db.close()
 print("AI processing complete")
