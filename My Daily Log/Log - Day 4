@@ -1,148 +1,49 @@
-Overview
+## Day 4 — AI Extraction Engine & Intelligent Matching Pipeline
 
-The AI Job Assistant is a Python-based system that builds an end-to-end AI recruitment pipeline. It automates job collection, stores structured data, and uses AI + deterministic scoring logic to evaluate job fit against a resume.
+- Integrated OpenAI API into the job matching workflow
+- Developed an AI analysis pipeline that connects:
+    - Job database
+    - Resume data
+    - Job descriptions
+    - Matching engine
 
-The system now operates as a multi-layer AI + rules-based matching engine, not just a simple scoring script.
+- Redesigned AI usage from direct scoring → structured information extraction
 
-🧠 Key Features
-📡 Job Scraper
-Scrapes job listings from Job Bank (Canada)
-Extracts:
-Job title
-Company
-Location
-Job URL
-Description (basic level, with future upgrade planned for deep scraping)
-Generates unique job IDs using hashing
-Stores jobs in SQLite database
-🗄️ Database System (SQLite)
-Fully migrated from CSV → relational database
-Structured schema includes:
-Job metadata:
-title
-company
-location
-url
-description
-Processing state:
-status (new, analyzed)
-AI output fields:
-score (final computed score)
-strengths
-gaps
-recommendation
-Duplicate prevention using INSERT OR IGNORE
-Enhanced row handling using sqlite3.Row for dictionary-style access
-🤖 AI Extraction Engine (Improved Architecture)
+AI now extracts:
 
-The system no longer relies on AI for scoring.
+    - Required technical skills
+    - Candidate matched skills
+    - Missing skills
+    - Experience requirements
+    - Responsibility alignment
+    - Education requirements
+    - Strengths
+    - Skill gaps
 
-Instead, GPT now acts as a structured information extractor.
+- Implemented structured JSON output handling for AI responses
+- Added database integration to store AI analysis results
+- Updated database workflow:
+    
+    New Job
+        ↓
+    AI Extraction
+        ↓
+    Skill Analysis
+        ↓
+    Database Update
 
-It outputs:
+- Improved system architecture by separating:
+    - AI extraction logic
+    - Scoring decisions
+    - Database operations
 
-{
-  "required_skills": {
-    "job_skills": [],
-    "matched": [],
-    "missing": []
-  },
-  "experience": {
-    "required": "",
-    "candidate": "",
-    "match": ""
-  },
-  "responsibilities": {
-    "matched": [],
-    "missing": []
-  },
-  "education": {
-    "matched": [],
-    "missing": []
-  },
-  "strengths": [],
-  "gaps": []
-}
+Resolved development issues including:
 
-✔ AI = extraction only
-✔ No scoring decisions made by AI
+    - OpenAI response formatting inconsistencies
+    - JSON parsing failures
+    - Database update handling
+    - Pipeline synchronization problems
 
-📊 Weighted Scoring Engine (NEW)
+Outcome:
 
-A deterministic Python scoring layer now calculates final job fit:
-
-Skills match (40 pts)
-Experience match (25 pts)
-Responsibilities match (20 pts)
-Education match (10 pts)
-Output:
-Final score (0–100)
-Breakdown per category
-Recommendation logic:
-70+   → apply  
-45–69 → maybe  
-<45   → skip
-⚠️ Current Known Issues (In Progress)
-Occasional OpenAI JSON parsing instability (Expecting value: line 1 column 1)
-Some jobs return empty or malformed AI responses (being fixed with strict JSON mode)
-Output currently printed in raw CLI format (not yet UI-polished)
-No semantic skill matching yet (strict matching only)
-📈 Current System Status
-
-✔ End-to-end pipeline working
-✔ Database fully functional
-✔ AI extraction stable (mostly)
-✔ Weighted scoring engine implemented
-✔ Recommendation system working
-
-📊 Current Behaviour
-Python developer resume is correctly being matched against IT support jobs
-Scores are correctly low (~5–30 range) due to real skill mismatch
-System is now fact-based instead of AI-guess-based
-🧭 Next Steps (Tomorrow’s Work)
-🔥 1. Fix AI Stability Completely
-Enforce strict JSON output (response_format={"type": "json_object"})
-Add retry logic for failed OpenAI responses
-Eliminate all parsing errors
-🧠 2. Add Semantic Skill Matching (Major Upgrade)
-
-Current system is strict:
-
-Python ≠ IT support → low score
-
-Next upgrade:
-
-Map transferable skills:
-Python → scripting → automation → IT troubleshooting
-Linux → system support relevance
-REST APIs → technical systems understanding
-
-This will increase realism of scoring.
-
-📊 3. Improve Output Readability
-Clean CLI dashboard output
-Show structured breakdown:
-Job: IT Support Technician
-Score: 62/100
-
-Skills: 28/40
-Experience: 15/25
-Responsibilities: 12/20
-Education: 7/10
-
-Recommendation: maybe
-🧾 4. Database Enhancement
-Store full score breakdown per category
-Enable filtering:
-“show jobs > 70”
-“top 5 matches”
-🚀 5. (Future Phase) Web Dashboard
-Flask or FastAPI UI
-Job browsing interface
-Sorting by AI score
-Resume upload system
-🎯 Summary
-
-The project has evolved from a simple AI scorer into a:
-
-Full AI-powered job matching pipeline with structured extraction + deterministic scoring + database persistence
+Upgraded system from a basic job scraper into an AI-powered analysis pipeline capable of understanding job requirements and comparing them against candidate information.
