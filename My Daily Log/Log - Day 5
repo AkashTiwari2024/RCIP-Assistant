@@ -1,0 +1,67 @@
+## Day 5 — Weighted Scoring Engine & Job Recommendation System
+
+- Implemented a deterministic scoring engine to replace AI-based scoring decisions
+
+The system now calculates job fit using weighted categories:
+
+    - Skills Match        → 40 points
+    - Experience Match    → 25 points
+    - Responsibilities    → 20 points
+    - Education Match     → 10 points
+
+- Added final job compatibility scoring:
+
+    70+  → Apply
+    45-69 → Maybe
+    <45   → Skip
+
+- Integrated scoring results into database records
+
+Stored:
+
+    - Final score
+    - Matching strengths
+    - Skill gaps
+    - Recommendation
+
+- Improved reliability by separating responsibilities:
+
+    AI:
+        Extracts job requirements and comparisons
+
+    Python Logic:
+        Calculates final score and recommendation
+
+- Tested pipeline using real job postings
+
+Verified:
+
+    - Matching jobs receive higher scores
+    - Unrelated jobs receive lower scores
+    - Recommendations are based on measurable criteria
+
+Resolved development issues including:
+
+    - AI hallucination from previous scoring approach
+    - Unrealistic score clustering
+    - Strict keyword-only comparisons
+    - Data flow issues between scraper, database, and AI modules
+
+Current System Architecture:
+
+    Job Bank
+        ↓
+    Collector
+        ↓
+    SQLite Database
+        ↓
+    AI Extraction Layer
+        ↓
+    Weighted Matching Engine
+        ↓
+    Job Recommendation
+
+Outcome:
+
+Transformed the project from a simple AI scoring script into a full AI-assisted recruitment pipeline using structured extraction, rule-based scoring, 
+and database persistence.
