@@ -8,8 +8,13 @@ class JobDatabase:
     def __init__(self):
         self.conn = sqlite3.connect(DATABASE_NAME)
         self.conn.row_factory = sqlite3.Row
+        self.conn.row_factory = sqlite3.Row
         self.cursor = self.conn.cursor()
         self.create_table()
+    
+    def get_new_jobs(self):
+        self.cursor.execute("SELECT * FROM jobs WHERE status IS NULL")
+        return [dict(row) for row in self.cursor.fetchall()]
 
     def create_table(self):
         self.cursor.execute("""
@@ -30,25 +35,36 @@ class JobDatabase:
             strengths TEXT,
             gaps TEXT,
             recommendation TEXT,
+            teer TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         """)
         self.conn.commit()
 
     def insert_job(self, job):
+
         self.cursor.execute("""
-        INSERT OR IGNORE INTO jobs (
-            id, title, company, location, url, description, source
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (
+            INSERT OR IGNORE INTO jobs (
+                id,
+                title,
+                company,
+                location,
+                url,
+                description,
+                source,
+                teer
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
             job["id"],
             job["title"],
             job["company"],
             job["location"],
             job["url"],
             job["description"],
-            job["source"]
+            job["source"],
+            job["teer"]
         ))
         self.conn.commit()
 
@@ -94,6 +110,14 @@ class JobDatabase:
 
     def close(self):
         self.conn.close()
+    
+    def get_all_jobs(self):
+
+        self.cursor.execute(
+            "SELECT * FROM jobs"
+        )
+
+        return self.cursor.fetchall()
 
 
 if __name__ == "__main__":

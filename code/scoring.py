@@ -57,24 +57,29 @@ def calculate_education_score(data):
     return 0
 
 
-def calculate_total_score(data):
+def calculate_total_score(analysis):
 
-    skill = calculate_skill_score(data)
-    experience = calculate_experience_score(data)
-    responsibility = calculate_responsibility_score(data)
-    education = calculate_education_score(data)
+    matched = analysis.get("required_skills", {}).get("matched", [])
+    missing = analysis.get("required_skills", {}).get("missing", [])
 
-    total = (
-        skill +
-        experience +
-        responsibility +
-        education
-    )
+    # Base score from match ratio
+    total_skills = len(matched) + len(missing)
 
-    return {
-        "score": total,
-        "skill_score": skill,
-        "experience_score": experience,
-        "responsibility_score": responsibility,
-        "education_score": education
-    }
+    if total_skills == 0:
+        return {"score": 0}
+
+    match_ratio = len(matched) / total_skills
+
+    # ENTRY-LEVEL BOOST SYSTEM
+    score = 30  # baseline (IMPORTANT FIX)
+
+    # skill contribution
+    score += match_ratio * 50  # up to +50
+
+    # small penalty for missing skills
+    score -= len(missing) * 2
+
+    # clamp
+    score = max(0, min(100, score))
+
+    return {"score": int(score)}

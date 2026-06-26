@@ -1,7 +1,10 @@
 from database import JobDatabase
+
 import requests
 from bs4 import BeautifulSoup
+
 import hashlib
+import re
 from urllib.parse import quote
 
 
@@ -12,6 +15,8 @@ db = JobDatabase()
 # Configuration
 # ---------------------------------
 
+BASE_URL = "https://www.jobbank.gc.ca"
+
 SEARCH_TERMS = [
     "software developer",
     "data analyst",
@@ -20,209 +25,239 @@ SEARCH_TERMS = [
 ]
 
 
+LOCATION = "Thunder Bay"
+
+
+HEADERS = {
+    "User-Agent":
+        "Mozilla/5.0"
+}
+
+
+
 # ---------------------------------
-# Generate unique job ID
+# Helpers
 # ---------------------------------
 
-def make_id(title, company, location, index):
+def clean_text(text):
 
-    raw = f"{title}|{company}|{location}|{index}"
+    if not text:
+        return ""
+
+    return (
+        text
+        .replace("\n", " ")
+        .replace("\t", " ")
+        .strip()
+    )
+
+
+
+def make_id(url):
 
     return hashlib.md5(
-        raw.encode()
+        url.encode()
     ).hexdigest()
 
 
 
+def extract_teer(text):
+
+    match = re.search(
+        r"TEER\s*[:\-]?\s*(\d)",
+        text,
+        re.IGNORECASE
+    )
+
+
+    if match:
+        return match.group(1)
+
+
+    return None
+
+
+
 # ---------------------------------
-# Build Job Bank URL
+# Build search URL
 # ---------------------------------
 
-def build_search_url(search_term):
-
-    encoded_term = quote(search_term)
+def build_search_url(term):
 
     return (
-        "https://www.jobbank.gc.ca/"
-        f"jobsearch/jobsearch?searchstring={encoded_term}"
+        BASE_URL +
+        "/jobsearch/jobsearch"
+        f"?searchstring={quote(term)}"
+        f"&locationstring={quote(LOCATION)}"
     )
 
 
 
 # ---------------------------------
-# Scrape full job description
+# Get Job Details
 # ---------------------------------
 
 def scrape_job_details(url):
 
-    response = requests.get(url)
 
-    soup = BeautifulSoup(
-        response.text,
-        "html.parser"
-    )
+    try:
 
-
-    description = soup.find(
-        "div",
-        class_="job-posting-detail"
-    )
+        response = requests.get(
+            url,
+            headers=HEADERS,
+            timeout=15
+        )
 
 
-    if description:
-        return description.text.strip()
+        soup = BeautifulSoup(
+            response.text,
+            "html.parser"
+        )
 
 
-    return "No description found"
+        page_text = clean_text(
+            soup.get_text(" ")
+        )
 
 
+        # Title
 
-# ---------------------------------
-# Scrape search results
-# ---------------------------------
+        title_tag = soup.find("h1")
 
-def scrape_jobs(search_term):
-
-    search_url = build_search_url(search_term)
-
-
-    print("\nSearching:", search_term)
-
-
-    response = requests.get(search_url)
-
-
-    print(
-        "Status:",
-        response.status_code
-    )
-
-
-    soup = BeautifulSoup(
-        response.text,
-        "html.parser"
-    )
-
-
-    titles = soup.find_all(
-        "span",
-        class_="noctitle"
-    )
-
-
-    links = soup.find_all(
-        "a",
-        class_="job-link"
-    )
-
-
-    companies = soup.find_all(
-        "li",
-        class_="business"
-    )
-
-
-    locations = soup.find_all(
-        "li",
-        class_="location"
-    )
-
-
-    jobs = []
-
-
-    for i, title_element in enumerate(titles):
-
-
-        title = title_element.text.strip()
-
-
-        company = (
-            companies[i].text.strip()
-            if i < len(companies)
+        title = (
+            clean_text(title_tag.text)
+            if title_tag
             else "N/A"
         )
 
 
-        location = (
-            locations[i]
-            .text
-            .replace("Location", "")
-            .strip()
-            if i < len(locations)
-            else "N/A"
-        )
+
+        # Description
+
+        description = ""
 
 
-        # ----------------------------
-        # Extract real job URL
-        # ----------------------------
+        containers = [
 
-        if i < len(links):
+            "job-posting-detail",
 
-            job_url = (
-                "https://www.jobbank.gc.ca"
-                + links[i]["href"]
+            "job-posting-description",
+
+        ]
+
+
+        for c in containers:
+
+            section = soup.find(
+                class_=c
             )
 
-        else:
 
-            job_url = "N/A"
+            if section:
 
+                description = clean_text(
+                    section.get_text(" ")
+                )
 
-
-        # ----------------------------
-        # Scrape real description
-        # ----------------------------
-
-        if job_url != "N/A":
-
-            description = scrape_job_details(
-                job_url
-            )
-
-        else:
-
-            description = "No description"
+                break
 
 
 
-        job = {
+        if not description:
+
+            description = page_text
+
+
+
+        return {
 
             "title": title,
 
-            "company": company,
-
-            "location": location,
-
-            "url": job_url,
-
             "description": description,
 
-            "source": "jobbank.gc.ca"
+            "teer": extract_teer(
+                page_text
+            )
 
         }
 
 
 
-        job["id"] = make_id(
-            title,
-            company,
-            location,
-            i
+    except Exception as e:
+
+
+        print(
+            "Detail scrape failed:",
+            e
         )
 
 
-        jobs.append(job)
+        return {
 
+            "title": "N/A",
 
-    return jobs
+            "description": "",
 
+            "teer": None
+        }
 
 
 
 # ---------------------------------
-# Main pipeline
+# Search Results
+# ---------------------------------
+
+def scrape_jobs(term):
+
+    url = build_search_url(term)
+
+    print("\nSearching:", term)
+
+    response = requests.get(url, headers=HEADERS)
+
+    print("Status:", response.status_code)
+
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    jobs = []
+
+    # ONLY job posting links
+    links = soup.select("a[href*='/jobsearch/jobposting/']")
+
+    print("Found job links:", len(links))
+
+    for link in links:
+
+        href = link["href"]
+
+        job_url = (
+            BASE_URL + href
+            if href.startswith("/")
+            else href
+        )
+
+        print("Fetching:", job_url)
+
+        details = scrape_job_details(job_url)
+
+        job = {
+            "id": make_id(job_url),
+            "title": details["title"],
+            "company": "N/A",
+            "location": LOCATION,
+            "url": job_url,
+            "description": details["description"],
+            "source": "jobbank.gc.ca",
+            "teer": details.get("teer", "N/A")
+        }
+
+        jobs.append(job)
+
+    return jobs
+
+
+# ---------------------------------
+# Main
 # ---------------------------------
 
 if __name__ == "__main__":
@@ -237,23 +272,48 @@ if __name__ == "__main__":
         jobs = scrape_jobs(term)
 
 
+
         for job in jobs:
 
 
-            db.insert_job(job)
+            # TEER filter
 
-            all_jobs.append(job)
+            if job["teer"]:
+
+                if job["teer"] not in [
+                    "0",
+                    "1",
+                    "2"
+                ]:
+
+                    continue
+
+
+
+            db.insert_job(
+                job
+            )
+
+
+            all_jobs.append(
+                job
+            )
 
 
 
     db.close()
 
 
-    print("\n===================")
 
     print(
-        "Total scraped:",
+        "\n==================="
+    )
+
+    print(
+        "Total stored:",
         len(all_jobs)
     )
 
-    print("===================")
+    print(
+        "==================="
+    )

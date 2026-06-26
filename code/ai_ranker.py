@@ -1,72 +1,64 @@
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
+import json
 
-# Load .env file
 load_dotenv()
 
-# Create OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-def analyze_job(resume_text, job_description):
+def analyze_job(resume, job_text):
 
-    prompt = f"""
-You are an ATS resume analysis engine.
+    messages = [
+        {
+            "role": "system",
+            "content": """
+You are an AI job matching system for ENTRY-LEVEL candidates.
 
-Your job is NOT to give a final score.
+Rules:
+- Candidate is early career / student level
+- Allow transferable skills
+- Do not require enterprise tools
+- Be realistic in scoring
+- Prefer semantic matching
 
-Your job is to extract matching evidence between a resume and a job posting.
+Return ONLY valid JSON:
 
-Return ONLY valid JSON.
-
-Format:
-
-{{
-  "required_skills": {{
+{
+  "required_skills": {
     "job_skills": [],
     "matched": [],
     "missing": []
-  }},
-
-  "experience": {{
-    "required": "",
-    "candidate": "",
-    "match": ""
-  }},
-
-  "responsibilities": {{
-    "matched": [],
-    "missing": []
-  }},
-
-  "education": {{
-    "matched": [],
-    "missing": []
-  }},
-
+  },
   "strengths": [],
-  "gaps": []
-}}
+  "gaps": [],
+  "explanation": ""
+}
 
-RESUME:
-{resume_text}
+No markdown. No extra text.
+"""
+        },
+        {
+            "role": "user",
+            "content": f"""
+CANDIDATE SKILLS:
+{resume["skills"]}
+
+EXPERIENCE FOCUS:
+{resume.get("experience_focus", "general")}
 
 JOB:
-{job_description}
+{job_text}
 """
+        }
+    ]
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0
+        messages=messages,
+        temperature=0,
+        response_format={"type": "json_object"}
     )
 
-    content = response.choices[0].message.content
-
-    if not content:
-        raise ValueError("Empty response from OpenAI")
-
-    return content
+    return response.choices[0].message.content
