@@ -1,0 +1,12 @@
+Day 6 — AI Job Matching Pipeline Stabilization & Scoring Improvements
+
+- Built and stabilized an AI-powered job matching system that analyzes real job postings and evaluates candidate fit using Python, SQL, and OpenAI APIs
+- Integrated structured AI analysis to extract required skills, missing skills, and job requirements from live Job Bank postings
+- Improved job classification logic to route roles into IT or Sales categories based on weighted keyword analysis
+- Reworked scoring system to better reflect entry-level job market expectations, improving score realism from overly strict outputs (~5–30) to more accurate ranges (~35–75)
+- Fixed multiple system issues including:
+    * broken AI response handling
+    * inconsistent job classification bias
+    * database schema mismatches
+    * unreliable scraping outputs
+- Validated full pipeline flow from web scraping → database storage → AI analysis → scoring → recommendation generation
