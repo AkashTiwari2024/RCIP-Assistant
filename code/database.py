@@ -137,7 +137,6 @@ class JobDatabase:
         location,
         score,
         recommendation,
-        category,
         strengths,
         gaps,
         url
@@ -200,7 +199,8 @@ class JobDatabase:
         location,
         score,
         recommendation,
-        category,
+        strengths,
+        gaps,
         url
     FROM jobs
     WHERE recommendation = 'maybe'
@@ -233,6 +233,18 @@ class JobDatabase:
     )
 
         return self.cursor.fetchall()
+    
+def get_job_counts(self):
+
+    query = """
+    SELECT recommendation, COUNT(*)
+    FROM jobs
+    GROUP BY recommendation
+    """
+
+    self.cursor.execute(query)
+
+    return self.cursor.fetchall()
 
 
 if __name__ == "__main__":
