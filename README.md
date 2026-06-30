@@ -10,7 +10,6 @@ This system collects job postings, structures the data, and prepares it for AI-b
 The final goal is to:
 - Find relevant RCIP job opportunities
 - Rank jobs based on profile match
-- Generate tailored resumes and cover letters
 - Support faster and higher-quality job applications (human-reviewed)
 
 ## 🛠️ Current Phase
