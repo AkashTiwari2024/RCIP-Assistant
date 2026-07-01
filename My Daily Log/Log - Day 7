@@ -1,0 +1,61 @@
+## Day X — AI Pipeline Persistence & Streamlit Dashboard
+
+* Connected AI analysis pipeline with SQLite persistence
+
+Implemented database storage for AI-generated results:
+
+- Job classification
+- Confidence score
+- Match score
+- Recommendation
+- Strengths
+- Skill gaps
+
+
+* Improved AI processing workflow
+
+Updated pipeline flow:
+
+Job Scraper
+↓
+SQLite Database
+↓
+AI Analysis
+↓
+Scoring Engine
+↓
+Saved Recommendations
+
+
+* Verified scoring and recommendations
+
+Tested live job postings:
+
+- IT job classification
+- Resume matching
+- Weighted scoring
+- Apply / Maybe / Skip recommendations
+
+
+* Confirmed job URL storage
+
+Job postings now retain source URLs for direct application access.
+
+
+* Built initial Streamlit dashboard
+
+Dashboard now displays:
+
+- Recommended jobs
+- Match scores
+- AI recommendations
+- Company/location details
+- Application links
+
+
+## Next Steps
+
+- Add IT / Sales dashboard filtering
+- Improve duplicate job handling
+- Expand job categories
+- Add role-specific resume profiles
