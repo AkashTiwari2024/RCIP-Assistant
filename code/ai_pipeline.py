@@ -202,7 +202,59 @@ def clean_json(text):
 
     return text.strip()
 
+# -----------------------------
+# Analyze a Job Description
+# -----------------------------
+def analyze_job_description(title, company, location, description):
 
+    job_text = f"""
+
+REAL JOB POSTING ANALYSIS
+
+TITLE:
+{title}
+
+COMPANY:
+{company}
+
+LOCATION:
+{location}
+
+FULL DESCRIPTION:
+
+{description}
+
+TASK:
+
+1. Extract required skills
+2. Match against candidate profile
+3. Allow transferable skills
+4. Do not over-penalize missing enterprise tools
+
+"""
+
+    classification = classify_job(title)
+
+    profile_type = classification["category"]
+
+    if profile_type not in RESUMES:
+        profile_type = "it"
+
+    resume = RESUMES[profile_type]
+
+    result = analyze_job(
+    resume,
+    job_text
+    )
+
+    cleaned = clean_json(result)
+
+    analysis = json.loads(cleaned)
+
+    return {
+    "analysis": analysis,
+    "classification": classification
+    }
 
 
 # -----------------------------
@@ -221,86 +273,30 @@ def run_pipeline():
 
     for job in jobs:
 
-
-        job_id = job[0]
-
-        title = job[1]
-
-        company = job[2]
-
-        location = job[3]
-
-        description = job[5]
-
-
-
-        job_text = f"""
-
-REAL JOB POSTING ANALYSIS
-
-
-TITLE:
-{title}
-
-
-COMPANY:
-{company}
-
-
-LOCATION:
-{location}
-
-
-FULL DESCRIPTION:
-
-{description}
-
-
-TASK:
-
-1. Extract required skills
-2. Match against candidate profile
-3. Allow transferable skills
-4. Do not over-penalize missing enterprise tools
-
-"""
-
-
-
-        classification = classify_job(title)
-
-
-        profile_type = classification["category"]
-
-
-        if profile_type not in RESUMES:
-
-            profile_type = "it"
-
-
-        resume = RESUMES[profile_type]
-
-
-
         try:
 
+            job_id = job[0]
 
-            result = analyze_job(
-                resume,
-                job_text
+            title = job[1]
+
+            company = job[2]
+
+            location = job[3]
+
+            description = job[5]
+
+            analysis_input = analyze_job_description(
+                title,
+                company,
+                location,
+                description
             )
 
-
-            cleaned = clean_json(result)
-
-
-            analysis = json.loads(cleaned)
-
-
-
+            classification = analysis_input["classification"]
+            analysis = analysis_input["analysis"]
             score_data = calculate_total_score(
-                analysis
-            )
+                    analysis
+                )
 
 
             score = score_data["score"]
@@ -309,19 +305,16 @@ TASK:
 
             if score >= 70:
 
-                recommendation = "apply"
+                    recommendation = "apply"
 
 
             elif score >= 45:
 
-                recommendation = "maybe"
-
+                    recommendation = "maybe"
 
             else:
 
-                recommendation = "skip"
-
-
+                    recommendation = "skip"
 
             # -----------------------------
             # Save AI results to database
@@ -347,17 +340,13 @@ TASK:
 
             )
 
-
-
             print("\n" + "="*50)
 
             print(
                 f"Job: {title}"
             )
 
-            print(
-                f"Type: {profile_type}"
-            )
+            print(f"Type: {classification['category']}")
 
             print(
                 f"Score: {score}"
