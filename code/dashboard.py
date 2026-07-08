@@ -1,29 +1,29 @@
 import streamlit as st
 from database import JobDatabase
 
-
-db = JobDatabase()
-
-
+# MUST be first Streamlit call
 st.set_page_config(
     page_title="RCIP Assistant",
     layout="wide"
 )
 
-
+# -----------------------------
+# Title
+# -----------------------------
 st.title("RCIP Assistant")
-st.write(
-    "AI-powered job matching dashboard"
-)
+st.write("AI-powered job matching dashboard")
 
+# -----------------------------
+# Database
+# -----------------------------
+db = JobDatabase()
 
 jobs = db.get_apply_jobs()
 
-
-st.subheader(
-    "Recommended Jobs"
-)
-
+# -----------------------------
+# Jobs Display
+# -----------------------------
+st.subheader("Recommended Jobs")
 
 for job in jobs:
 
@@ -36,48 +36,19 @@ for job in jobs:
     gaps = job["gaps"]
     url = job["url"]
 
+    with st.expander(f"{title} — Score: {score}"):
 
-    with st.expander(
-        f"{title} — Score: {score}"
-    ):
+        st.write("Company:", company)
+        st.write("Location:", location)
 
-        st.write(
-            f"Company: {company}"
-        )
+        st.write("Recommendation:", recommendation.upper())
 
-        st.write(
-            f"Location: {location}"
-        )
+        st.write("Strengths:")
+        st.write(strengths)
 
+        st.write("Missing:")
+        st.write(gaps)
 
-        st.write(
-            "Recommendation:",
-            recommendation.upper()
-        )
-
-
-        st.write(
-            "Strengths:"
-        )
-
-        st.write(
-            strengths
-        )
-
-
-        st.write(
-            "Missing:"
-        )
-
-        st.write(
-            gaps
-        )
-
-
-        st.link_button(
-            "Open Job Posting",
-            url
-        )
-
+        st.link_button("Open Job Posting", url)
 
 db.close()
