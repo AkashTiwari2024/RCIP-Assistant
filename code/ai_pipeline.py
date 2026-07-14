@@ -205,7 +205,12 @@ def clean_json(text):
 # -----------------------------
 # Analyze a Job Description
 # -----------------------------
-def analyze_job_description(title, company, location, description):
+def analyze_job_description(
+    title="User Job",
+    company="Unknown",
+    location="Unknown",
+    description=""
+):
 
     job_text = f"""
 

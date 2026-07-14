@@ -18,6 +18,19 @@ st.write("AI-powered job matching dashboard")
 # -----------------------------
 db = JobDatabase()
 
+#test database details
+all_jobs = db.get_top_jobs(1000)
+
+st.write("Total scored jobs:", len(all_jobs))
+
+apply_jobs = db.get_apply_jobs()
+st.write("Apply jobs:", len(apply_jobs))
+
+maybe_jobs = db.get_maybe_jobs()
+st.write("Maybe jobs:", len(maybe_jobs))
+
+#test database details
+
 jobs = db.get_apply_jobs()
 
 # -----------------------------

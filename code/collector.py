@@ -25,7 +25,17 @@ SEARCH_TERMS = [
 ]
 
 
-LOCATION = "Thunder Bay"
+LOCATIONS = [
+    "Ontario",
+    "Saskatchewan",
+    "Manitoba",
+    "Alberta",
+    "British Columbia",
+    "Nova Scotia",
+    "New Brunswick",
+    "Prince Edward Island",
+    "Newfoundland and Labrador"
+]
 
 
 HEADERS = {
@@ -82,13 +92,13 @@ def extract_teer(text):
 # Build search URL
 # ---------------------------------
 
-def build_search_url(term):
+def build_search_url(term, location):
 
     return (
         BASE_URL +
         "/jobsearch/jobsearch"
         f"?searchstring={quote(term)}"
-        f"&locationstring={quote(LOCATION)}"
+        f"&locationstring={quote(location)}"
     )
 
 
@@ -207,11 +217,11 @@ def scrape_job_details(url):
 # Search Results
 # ---------------------------------
 
-def scrape_jobs(term):
+def scrape_jobs(term, location):
 
-    url = build_search_url(term)
+    url = build_search_url(term, location)
 
-    print("\nSearching:", term)
+    print(f"\nSearching: {term} in {location}")
 
     response = requests.get(url, headers=HEADERS)
 
@@ -244,7 +254,7 @@ def scrape_jobs(term):
             "id": make_id(job_url),
             "title": details["title"],
             "company": "N/A",
-            "location": LOCATION,
+            "location": location,
             "url": job_url,
             "description": details["description"],
             "source": "jobbank.gc.ca",
@@ -266,10 +276,21 @@ if __name__ == "__main__":
     all_jobs = []
 
 
-    for term in SEARCH_TERMS:
+    for location in LOCATIONS:
 
+        for term in SEARCH_TERMS:
 
-        jobs = scrape_jobs(term)
+            jobs = scrape_jobs(term, location)
+
+        for job in jobs:
+
+            if job["teer"]:
+
+                if job["teer"] not in ["0", "1", "2"]:
+                    continue
+
+            db.insert_job(job)
+            all_jobs.append(job)
 
 
 

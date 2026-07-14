@@ -1,4 +1,5 @@
 import streamlit as st
+from ai_pipeline import analyze_job_description
 
 st.set_page_config(page_title="Analyze Job")
 
@@ -25,4 +26,43 @@ if analyze:
 
     else:
 
-        st.success("Job description received!")
+       with st.spinner("Analyzing job..."):
+
+        result = analyze_job_description(
+        description=job_description
+    )
+        analysis = result["analysis"]
+classification = result["classification"]
+
+score = analysis.get("score", "N/A")
+strengths = analysis.get("strengths", [])
+gaps = analysis.get("gaps", [])
+
+st.success("Analysis complete!")
+
+st.subheader("Classification")
+
+st.write("Category:", classification["category"])
+st.write("Confidence:", classification["confidence"])
+
+st.subheader("Match Score")
+
+st.metric("Score", score)
+
+recommendation = (
+    "Apply" if score != "N/A" and score >= 70
+    else "Maybe" if score != "N/A" and score >= 45
+    else "Skip"
+)
+
+st.write("Recommendation:", recommendation)
+
+st.subheader("Strengths")
+
+for item in strengths:
+    st.write(f"✅ {item}")
+
+st.subheader("Skill Gaps")
+
+for item in gaps:
+    st.write(f"❌ {item}")
