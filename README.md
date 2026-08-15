@@ -230,11 +230,16 @@ This allows jobs from other websites to be analyzed without adding them to the J
 
 ### Main Dashboard
 
-Add dashboard screenshot here.
+<img width="1920" height="1080" alt="Dashboard 1" src="https://github.com/user-attachments/assets/87b76933-de26-472b-a5f2-5cd044c96e04" />
+<img width="1920" height="1080" alt="Dashboard 2" src="https://github.com/user-attachments/assets/ef7aaa08-32f4-496a-87fd-ace33920d102" />
+
 
 ### Job Analysis
 
-Add Analyze Job screenshot here.
+<img width="1920" height="1080" alt="Dashboard 3" src="https://github.com/user-attachments/assets/4588b8a4-252d-4572-ac61-fa19b3b869f9" />
+
+<img width="1920" height="1080" alt="Dashboard 4" src="https://github.com/user-attachments/assets/652f2880-34d1-447d-851e-12ccf278b4b8" />
+
 
 ## What I Learned
 
