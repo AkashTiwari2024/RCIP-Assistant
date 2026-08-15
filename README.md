@@ -6,6 +6,12 @@ The main purpose of the project is to collect jobs from Job Bank, store them in 
 
 I originally started the project to make it easier to search through jobs related to my career goals instead of reviewing every posting manually.
 
+## Live Demo
+
+🌐 **[Open RCIP Job Assistant](https://rcip-assistant-unvyu8gnae9ztxzxvlhxqd.streamlit.app/)**
+
+The live demo includes a dashboard with sample analyzed jobs and an AI-powered Analyze Job page where a job description can be entered for real-time analysis.
+
 ## Features
 
 The project currently includes:
