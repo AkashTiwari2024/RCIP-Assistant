@@ -1,7 +1,9 @@
 import json
 import streamlit as st
-
 from database import JobDatabase
+from demo_data import load_demo_jobs
+
+
 
 
 # MUST be first Streamlit call
@@ -29,6 +31,7 @@ st.write(
 db = JobDatabase()
 
 jobs = db.get_dashboard_jobs()
+load_demo_jobs(db)
 
 
 # -----------------------------
