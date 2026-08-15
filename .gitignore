@@ -2,5 +2,11 @@ venv/
 .env
 __pycache__/
 *.pyc
-jobs.db
-jobs_backup.db
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Streamlit secrets
+.streamlit/secrets.toml
