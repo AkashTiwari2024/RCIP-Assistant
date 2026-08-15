@@ -1,14 +1,21 @@
 import streamlit as st
+
 from ai_pipeline import analyze_job_description
+from scoring import calculate_total_score
 
-st.set_page_config(page_title="Analyze Job")
 
-st.title("📝 Analyze a Job Description")
+st.set_page_config(
+    page_title="Analyze Job"
+)
+
+
+st.title("Analyze a Job Description")
 
 st.write(
     "Paste a complete job posting below and let RCIP Assistant "
-    "evaluate how well it matches your resume."
+    "evaluate how well it matches your profile."
 )
+
 
 job_description = st.text_area(
     "Job Description",
@@ -16,53 +23,146 @@ job_description = st.text_area(
     placeholder="Paste the complete job posting here..."
 )
 
-analyze = st.button("Analyze Job")
+
+analyze = st.button(
+    "Analyze Job"
+)
+
 
 if analyze:
 
     if not job_description.strip():
 
-        st.warning("Please paste a job description.")
+        st.warning(
+            "Please paste a job description."
+        )
 
     else:
 
-       with st.spinner("Analyzing job..."):
+        with st.spinner(
+            "Analyzing job..."
+        ):
 
-        result = analyze_job_description(
-        description=job_description
-    )
-        analysis = result["analysis"]
-classification = result["classification"]
+            result = analyze_job_description(
+                description=job_description
+            )
 
-score = analysis.get("score", "N/A")
-strengths = analysis.get("strengths", [])
-gaps = analysis.get("gaps", [])
+            analysis = result["analysis"]
 
-st.success("Analysis complete!")
+            classification = result[
+                "classification"
+            ]
 
-st.subheader("Classification")
+            score_data = calculate_total_score(
+                analysis
+            )
 
-st.write("Category:", classification["category"])
-st.write("Confidence:", classification["confidence"])
+            score = score_data["score"]
 
-st.subheader("Match Score")
+            strengths = analysis.get(
+                "strengths",
+                []
+            )
 
-st.metric("Score", score)
+            gaps = analysis.get(
+                "gaps",
+                []
+            )
 
-recommendation = (
-    "Apply" if score != "N/A" and score >= 70
-    else "Maybe" if score != "N/A" and score >= 45
-    else "Skip"
-)
 
-st.write("Recommendation:", recommendation)
+        # -----------------------------
+        # Recommendation
+        # -----------------------------
 
-st.subheader("Strengths")
+        if score >= 70:
 
-for item in strengths:
-    st.write(f"✅ {item}")
+            recommendation = "Apply"
 
-st.subheader("Skill Gaps")
+        elif score >= 45:
 
-for item in gaps:
-    st.write(f"❌ {item}")
+            recommendation = "Maybe"
+
+        else:
+
+            recommendation = "Skip"
+
+
+        # -----------------------------
+        # Results
+        # -----------------------------
+
+        st.success(
+            "Analysis complete!"
+        )
+
+
+        st.subheader(
+            "Job Classification"
+        )
+
+        col1, col2 = st.columns(2)
+
+        col1.metric(
+            "Category",
+            classification["category"].upper()
+        )
+
+        col2.metric(
+            "Confidence",
+            f"{classification['confidence']:.0%}"
+        )
+
+
+        st.subheader(
+            "Match Score"
+        )
+
+        score_col1, score_col2 = st.columns(2)
+
+        score_col1.metric(
+            "Score",
+            f"{score}/100"
+        )
+
+        score_col2.metric(
+            "Recommendation",
+            recommendation
+        )
+
+
+        st.subheader(
+            "Strengths"
+        )
+
+        if strengths:
+
+            for item in strengths:
+
+                st.write(
+                    f"✅ {item}"
+                )
+
+        else:
+
+            st.write(
+                "No major strengths identified."
+            )
+
+
+        st.subheader(
+            "Skill Gaps"
+        )
+
+        if gaps:
+
+            for item in gaps:
+
+                st.write(
+                    f"⚠️ {item}"
+                )
+
+        else:
+
+            st.write(
+                "No major skill gaps identified."
+            )

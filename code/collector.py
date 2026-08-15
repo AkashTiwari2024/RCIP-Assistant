@@ -17,12 +17,15 @@ db = JobDatabase()
 
 BASE_URL = "https://www.jobbank.gc.ca"
 
+
 SEARCH_TERMS = [
     "software developer",
     "data analyst",
     "cloud engineer",
     "cybersecurity analyst"
 ]
+
+
 
 
 LOCATIONS = [
@@ -36,6 +39,7 @@ LOCATIONS = [
     "Prince Edward Island",
     "Newfoundland and Labrador"
 ]
+
 
 
 HEADERS = {
@@ -65,10 +69,17 @@ def clean_text(text):
 
 def make_id(url):
 
+    match = re.search(
+        r"/jobposting/(\d+)",
+        url
+    )
+
+    if match:
+        return match.group(1)
+
     return hashlib.md5(
         url.encode()
     ).hexdigest()
-
 
 
 def extract_teer(text):
@@ -217,48 +228,82 @@ def scrape_job_details(url):
 # Search Results
 # ---------------------------------
 
-def scrape_jobs(term, location):
+def scrape_jobs(search_term, location):
 
-    url = build_search_url(term, location)
+    print(f"\nSearching: {search_term} in {location}")
 
-    print(f"\nSearching: {term} in {location}")
+    url = build_search_url(search_term, location)
 
-    response = requests.get(url, headers=HEADERS)
+    response = requests.get(
+        url,
+        headers=HEADERS,
+        timeout=15
+)
 
     print("Status:", response.status_code)
 
+    if response.status_code != 200:
+        print("Search request failed")
+        return []
+
     soup = BeautifulSoup(response.text, "html.parser")
 
-    jobs = []
+    job_links = []
 
-    # ONLY job posting links
-    links = soup.select("a[href*='/jobsearch/jobposting/']")
-
-    print("Found job links:", len(links))
-
-    for link in links:
+    # Find Job Bank posting links
+    for link in soup.find_all("a", href=True):
 
         href = link["href"]
 
-        job_url = (
-            BASE_URL + href
-            if href.startswith("/")
-            else href
-        )
+        if "/jobsearch/jobposting/" in href:
+
+            job_url = (
+                BASE_URL + href
+                if href.startswith("/")
+                else href
+            )
+
+            # Remove jsessionid and other temporary URL information
+            match = re.search(
+                r"(https://www\.jobbank\.gc\.ca/jobsearch/jobposting/\d+)",
+                job_url
+            )
+
+            if match:
+                clean_url = match.group(1)
+            else:
+                clean_url = job_url
+
+            # Prevent duplicate links within this search
+            if clean_url not in job_links:
+                job_links.append(clean_url)
+
+    print("Found job links:", len(job_links))
+
+    jobs = []
+
+    for job_url in job_links:
 
         print("Fetching:", job_url)
 
         details = scrape_job_details(job_url)
 
+        if details is None:
+            continue
+
         job = {
             "id": make_id(job_url),
-            "title": details["title"],
-            "company": "N/A",
-            "location": location,
+            "title": details.get("title", ""),
+            "company": details.get("company", ""),
+            "location": details.get("location", ""),
             "url": job_url,
-            "description": details["description"],
-            "source": "jobbank.gc.ca",
-            "teer": details.get("teer", "N/A")
+            "description": details.get("description", ""),
+            "requirements": details.get("requirements", ""),
+            "skills": details.get("skills", ""),
+            "education": details.get("education", ""),
+            "tenure": details.get("tenure", ""),
+            "source": "Job Bank",
+            "teer": details.get("teer", "")
         }
 
         jobs.append(job)
@@ -272,9 +317,7 @@ def scrape_jobs(term, location):
 
 if __name__ == "__main__":
 
-
     all_jobs = []
-
 
     for location in LOCATIONS:
 
@@ -282,59 +325,20 @@ if __name__ == "__main__":
 
             jobs = scrape_jobs(term, location)
 
-        for job in jobs:
+            for job in jobs:
 
-            if job["teer"]:
+                # TEER filter
+                if job["teer"]:
 
-                if job["teer"] not in ["0", "1", "2"]:
-                    continue
+                    if job["teer"] not in ["0", "1", "2"]:
+                        continue
 
-            db.insert_job(job)
-            all_jobs.append(job)
+                db.insert_job(job)
 
-
-
-        for job in jobs:
-
-
-            # TEER filter
-
-            if job["teer"]:
-
-                if job["teer"] not in [
-                    "0",
-                    "1",
-                    "2"
-                ]:
-
-                    continue
-
-
-
-            db.insert_job(
-                job
-            )
-
-
-            all_jobs.append(
-                job
-            )
-
-
+                all_jobs.append(job)
 
     db.close()
 
-
-
-    print(
-        "\n==================="
-    )
-
-    print(
-        "Total stored:",
-        len(all_jobs)
-    )
-
-    print(
-        "==================="
-    )
+    print("\n===================")
+    print("Jobs processed:", len(all_jobs))
+    print("===================")

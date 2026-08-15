@@ -72,6 +72,29 @@ class JobDatabase:
         """)
         return self.cursor.fetchall()
 
+    def get_dashboard_jobs(self):
+
+        query = """
+            SELECT
+                title,
+                company,
+                location,
+                score,
+                recommendation,
+                category,
+                confidence,
+                strengths,
+                gaps,
+                url
+            FROM jobs
+            WHERE score IS NOT NULL
+            ORDER BY score DESC
+        """
+
+        self.cursor.execute(query)
+
+        return self.cursor.fetchall()
+
 
     def search_jobs(self, keyword):
         self.cursor.execute("""
